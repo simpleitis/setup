@@ -1,0 +1,16 @@
+npm install json-server
+
+
+Create a file in root directory 'db.json' and give the basic structure of the database. For example
+{
+  "users": [],
+  "albums": [],
+  "photos": []
+}
+
+
+
+Add "server": "json-server --watch db.json --port 3001", inside the scripts section just after "start": "react-scripts start",
+
+
+Open up a seperate terminal window and run 'npm run server'

@@ -1,0 +1,40 @@
+Install redux toolkit using 'npm install @reduxjs/toolkit react-redux'
+
+Create folder 'store' with subfolder 'apis'
+
+Create the 'api' for defining the hooks, action objects etc for an entity. The api has a lot of properties to be configured. First we configure the 'reducerPath' which defines where the slice which is automatically created by redux toolkit for each api, is to be stored inside the store
+
+Then we define the 'baseQuery' property. Here we define the 'baseUrl' of the api which we want to do CRUD operations on. We could also define a property called 'fetchFn' inside the 'baseQuery' property  to configure the 'fetch' library which is used by RTK query to make api request. This is helpful because before you return from the function you could add in some other logic, like to maybe add in a pause function which would introduce a small delay before making the actual api request.
+import { createApi, fetchBaseQuery } from '@redux/toolkit/query/react';
+const booksApi = createApi({
+    reducerPath: 'books',
+    baseQuery: fetchBaseQuery({
+        baseUrl: 'http://localhost:3001',
+        fetchFn: async (...args) => {
+            return fetch(...args);
+        },
+    }),
+});
+
+INSERT ADDITION OF ENDPOINTS HERE AND EXPORTS
+
+
+Configure the store inside 'index.js' of store folder
+import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
+import { setupListeners } from '@redux/toolkit/query';
+import { booksApi } from './apis/booksApi';
+const store = configureStore({
+    reducer: {
+        [booksApi.reducerPath]: booksApi.reducer,
+    },
+    middleware: (getDefaultMiddleware) => {
+        return getDefaultMiddleware().concat(booksApi.middleware);
+    },
+});
+setupListeners(store.dispatch);
+export { store };
+export { useFetchBooksQuery } from './apis/booksApi';
+
+
+
+

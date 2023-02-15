@@ -1,0 +1,97 @@
+npm install @reduxjs/toolkit react-redux
+
+Create folder 'store' with subfolder 'slices'
+
+Inside 'slices' create a file 'nameSlice.js'. 'nanoid' is used for generating unique id from the react store when data is stored
+import { createSlice, nanoid } from '@reduxjs/toolkit';
+
+
+
+Create the slice and remember the name is used as a part of the action type. eg- type: 'cars/addCar'
+const carsSlice = createSlice({
+    name: 'cars',
+    initialState: {
+        searchTerm: '',
+        cars: [],
+    },
+    reducers: {
+        changeSearchTerm(state, action) {
+            state.searchTerm = action.payload;
+        },
+        addCar(state, action) {
+            state.cars.push({
+                name: action.payload.name,
+                cost: action.payload.cost,
+                id: nanoid(),
+            });
+        },
+        removeCar(state, action) {
+            const updated = state.cars.filter((car) => {
+                return car.id !== action.payload;
+            });
+            state.cars = updated;
+        },
+    },
+});
+
+Export the action creators and reducer
+export const { changeSearchTerm, addCar, removeCar } = carsSlice.actions;
+export const carsReducer = carsSlice.reducer;
+
+
+Create 'index.js' inside 'store' directory
+import { configureStore } from '@reduxjs/toolkit';
+import {
+    carsReducer,
+    addCar,
+    removeCar,
+    changeSearchTerm,
+} from './slices/carsSlice';
+import { formReducer, changeName, changeCost } from './slices/formSlice';
+const store = configureStore({
+    reducer: {
+        cars: carsReducer,
+        form: formReducer,
+    },
+});
+export { store, changeName, changeCost, addCar, removeCar, changeSearchTerm };
+
+
+Modify 'index.js/src'
+import { Provider } from 'react-redux';
+import { store } from './store';
+...
+root.render(
+    <Provider store={store}>
+        <App />
+    </Provider>
+);
+
+Access the state variable inside components using 'useSelector'
+const data = useSelector((state) => {
+    return state.table.data;
+});
+
+
+Dispatch action objects to trigger respective reducers using the 'useDispatch' hook and passing the necessary action object
+const dispatch = useDispatch();
+const handleClick = () => {
+    dispatch(addRecord('Harry Potter'));
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

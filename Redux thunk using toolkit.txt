@@ -1,0 +1,116 @@
+Install redux toolkit using 'npm install @reduxjs/toolkit react-redux'
+
+Create folder 'store' with subfolder 'slices' and 'thunks'
+
+Create the thunks inside the 'thunk' folder. For example 'fetchUsers'
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
+const fetchUsers = createAsyncThunk('users/fetch', async () => {
+    const response = await axios.get('http://localhost:3005/users');
+
+    // DEV ONLY!!!
+    await pause(1000);
+    return response.data;
+});
+// DEV ONLY!!!
+const pause = (duration) => {
+    return new Promise((resolve) => {
+        setTimeout(resolve, duration);
+    });
+};
+export { fetchUsers };
+
+Inside 'slices' create a file 'nameSlice.js'. 'nanoid' is used for generating unique id from the react store when data is stored
+import { createSlice, nanoid } from '@reduxjs/toolkit';
+
+Create the slice and import the thunk into it and define the extra reducers for the thunk we created now. Each thunk would have 3 reducer associated to it. One each for action with types pending, fulfilled and rejected. The value we return from the thunk would be available inside the 'payload' property of the action object when the 'fulfilled' action object is dispatched.
+import { createSlice } from '@reduxjs/toolkit';
+import { fetchBooks } from '../thunk/fetchBooks';
+const booksSlice = createSlice({
+    name: 'books',
+    initialState: {
+        data: [],
+        isLoading: false,
+        error: null,
+    },
+    extraReducers(builder) {
+        builder.addCase(fetchBooks.pending, (state, action) => {
+            // Not error this is empty
+        });
+        builder.addCase(fetchBooks.fulfilled, (state, action) => {
+            state.data = action.payload;
+        });
+        builder.addCase(fetchBooks.rejected, (state, action) => {      
+            
+        });
+    },
+});
+export const booksReducer = booksSlice.reducer;
+
+
+Configure the store inside 'index.js' of store folder
+import { configureStore } from '@reduxjs/toolkit';
+import { booksReducer } from './slices/userSlice';
+const store = configureStore({
+    reducer: {
+        books: booksReducer,
+    },
+});
+export { store };
+export * from './thunks/fetchBooks';
+
+Create a hook inside the 'hooks' folder to use the thunk. We use '.unwrap' to get the normal behaviour of promises because other wise we would get a promise which does not have the expected behaviour of a normal promise
+import { useCallback, useState } from "react";
+import { useDispatch } from "react-redux";
+export function useThunk(thunk) {
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const dispatch = useDispatch();
+    const runThunk = useCallback(
+        (arg) => {
+            setIsLoading(true);
+            dispatch(thunk(arg))
+                .unwrap()
+                .catch((err) => setError(err))
+                .finally(() => setIsLoading(false));
+        },
+        [dispatch, thunk]
+    );
+    return [runThunk, isLoading, error];
+}
+
+Modify 'index.js/src'
+import { Provider } from 'react-redux';
+import { store } from './store';
+...
+root.render(
+    <Provider store={store}>
+        <App />
+    </Provider>
+);
+
+Access the state using 'useSelector' hook and dispatch thunks using the function inside the hook to ultimately dispatch action objects
+const data = useSelector((state) => {
+    return state.table.data;
+});
+If you want to pass any arguments to the thunk, you can do so by passing them with the function returned from the custom hook
+const [doFetchUsers, isLoadingUsers, loadingUsersError] = useThunk(fetchBooks);
+useEffect(() => {
+    doFetchUsers(args);
+}, [doFetchUsers]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

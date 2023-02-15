@@ -1,0 +1,40 @@
+Create a folder called 'context' inside src
+
+Create a file with the name of the context like 'books.js'
+
+Import 'createContext' from react
+
+Now create the actual context object 
+const BooksContext = createContext();
+
+Now define a react component called 'Provider'(This is just a good practise). The provider component should accept 'children' as props
+
+Define a state variable to store the data to be fetched
+
+Now define with fetch function like 'fetchBooks' using 'useCallback' hook to fetch the data from api and store it to state variable. 
+
+Now define the delete function like 'deleteBookById' and once you get back a successfull response from the api which would normally be an empty object, then create a new copy of books where you filter our the deleted book and update the state variable 'books'
+
+Now define the create function like 'createBook' and once you get back a response from the api, then create a new copy of books with the newly added book object like 'const updatedBooks = [...books, response.data]'
+
+Now define the edit function like 'editBookById' and once you get back a response from the api, then map over the books object and return the response.data for the book object which has the corresponding id
+
+
+Now define the 'valueToShare' object with all the variable to be shared using the context
+
+Return the 'children' props enclosed using the provider of the context like
+<BooksContext.Provider value={valueToShare}>
+  {children}
+</BooksContext.Provider>
+
+Export the 'Provider' component and import it inside the 'index.js' and wrap the 'App' componen with it
+
+Export the context object as default export
+
+Create a folder called 'hooks' inside src and create a hook to use the created context
+
+Use the hook we created to access the context object to call the fetch function inside app.js from json server
+
+
+
+
